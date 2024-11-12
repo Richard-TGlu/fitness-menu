@@ -68,5 +68,71 @@
 </head>
 <body>
     <h1>Test</h1>
+    <h1>健身菜單推薦</h1>
+    <form id="nutrition-form">
+        <label for="weight">體重(kg):</label>
+        <input type="number" id="weight" name="weight" required>
+        
+        <label for="goal">目標:</label>
+        <select id="goal" name="goal" required>
+            <option value="muscle">增肌</option>
+            <option value="fatloss">減脂</option>
+        </select>
+        
+        <label for="gender">生理性別:</label>
+        <select id="gender" name="gender" required>
+            <option value="male">男</option>
+            <option value="female">女</option>
+        </select>
+
+        <button type="button" onclick="generatePlan()">產生計畫</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        function generatePlan() {
+            const weight = parseFloat(document.getElementById("weight").value);
+            const goal = document.getElementById("goal").value;
+            const gender = document.getElementById("gender").value;
+
+            if (isNaN(weight) || weight <= 0) {
+                alert("請輸入合理體重");
+                return;
+            }
+
+            // 計算蛋白質攝入
+            let proteinMin, proteinMax;
+            if (goal === "muscle") {
+                proteinMin = 1.2 * weight;
+                proteinMax = 2.0 * weight;
+            } else if (goal === "fatloss") {
+                proteinMin = 1.6 * weight;
+                proteinMax = 2.0 * weight;
+            }
+
+            // 計算碳水
+            const carbMin = weight * 3;
+            const carbMax = weight * 5;
+
+            // 生成菜單(未完成)
+            const meals = {
+                breakfast: `蛋白質: 1份優格或豆腐, 碳水: 地瓜(approx. 41g 碳水)`,
+                lunch: `蛋白質: 雞胸、魚肉, 碳水: 白飯 (approx. 60g 碳水)`,
+                dinner: `蛋白質: 豆腐、牛奶, 碳水: 白飯或地瓜`
+            };
+
+            // Display the result
+            document.getElementById("result").innerHTML = `
+                <h2>推薦菜單</h2>
+                <p><strong>蛋白質攝取:</strong> ${proteinMin.toFixed(1)} - ${proteinMax.toFixed(1)} 克/日</p>
+                <p><strong>碳水攝取:</strong> ${carbMin.toFixed(1)} - ${carbMax.toFixed(1)} 克/日</p>
+                <h3>參考菜單:</h3>
+                <p><strong>早餐:</strong> ${meals.breakfast}</p>
+                <p><strong>午餐:</strong> ${meals.lunch}</p>
+                <p><strong>晚餐:</strong> ${meals.dinner}</p>
+            `;
+        }
+    </script>
 </body>
 </html>
