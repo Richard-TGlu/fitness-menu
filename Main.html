@@ -1,138 +1,414 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Unknown</title>
-    <style type="text/css">
-
-    </style>
-    <script type="text/javascript">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健身平台 - 飲食菜單建議</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 原始樣式保持不變 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f0f0f0;
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
         }
 
-        form {
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .tabs button {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #e0e0e0;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 16px;
+        }
+
+        .tabs button.active {
+            background-color: white;
+            border-bottom: 2px solid #333;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .card {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
-        label {
+        canvas {
+            max-width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
             display: block;
-            margin: 10px 0 5px;
+            font-weight: bold;
         }
 
-        input, select {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            border: none;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
             color: white;
-            font-size: 16px;
+            background-color: #007bff;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: #218838;
+        .btn:hover {
+            background-color: #0056b3;
         }
 
-        #result {
-            max-width: 400px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+        ul {
+            padding-left: 20px;
         }
-    </script>
+
+        .chart-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chart-controls button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chart-controls button.active {
+            background-color: #0056b3;
+        }
+
+        .chart-controls button:hover {
+            background-color: #003f7f;
+        }
+    </style>
 </head>
 <body>
-    <h1>Test</h1>
-    <h1>健身菜單推薦</h1>
-    <form id="nutrition-form">
-        <label for="weight">體重(kg):</label>
-        <input type="number" id="weight" name="weight" required>
-        
-        <label for="goal">目標:</label>
-        <select id="goal" name="goal" required>
-            <option value="muscle">增肌</option>
-            <option value="fatloss">減脂</option>
-        </select>
-        
-        <label for="gender">生理性別:</label>
-        <select id="gender" name="gender" required>
-            <option value="male">男</option>
-            <option value="female">女</option>
-        </select>
+    <div class="nav">
+        <h1>健身飲食平台</h1>
+        <div>
+            <a href="#" onclick="logout()">登出</a>
+        </div>
+    </div>
 
-        <button type="button" onclick="generatePlan()">產生計畫</button>
-    </form>
+    <div class="container">
+        <!-- 分頁選單 -->
+        <div class="tabs">
+            <button id="tab-profile" class="active" onclick="showTab('profile')">個人資訊</button>
+            <button id="tab-plan" onclick="showTab('plan')">飲食菜單建議</button>
+            <button id="tab-history" onclick="showTab('history')">歷史紀錄</button>
+        </div>
 
-    <div id="result"></div>
+        <!-- 個人資訊 -->
+        <div id="profile" class="content active">
+            <div class="card">
+                <h2>個人資訊</h2>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="name">姓名:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="height">身高(cm):</label>
+                        <input type="number" id="height" name="height" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">最新體重(kg):</label>
+                        <input type="number" id="weight" name="weight" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal">健身目標:</label>
+                        <select id="goal" name="goal" required>
+                            <option value="增肌">增肌</option>
+                            <option value="減脂">減脂</option>
+                            <option value="維持">維持</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn" onclick="saveProfile()">儲存資訊</button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- 飲食菜單建議 -->
+        <div id="plan" class="content">
+            <div class="card">
+                <h2>推薦飲食菜單</h2>
+                <p>根據您的目標，以下是建議的飲食計畫：</p>
+                <ul id="meal-plan">
+                    <!-- 動態生成的飲食建議 -->
+                </ul>
+                <button class="btn" onclick="generateMealPlan()">生成建議菜單</button>
+            </div>
+        </div>
+
+        <!-- 飲食紀錄 -->
+        <div id="history" class="content">
+            <div class="card">
+                <h2>飲食紀錄管理</h2>
+                <div class="form-group">
+                    <label for="meal-date">日期:</label>
+                    <input type="date" id="meal-date">
+                </div>
+                <div class="form-group">
+                    <label for="meal-calories">熱量(大卡):</label>
+                    <input type="number" id="meal-calories" placeholder="輸入攝取熱量">
+                </div>
+                <div class="form-group">
+                    <label for="meal-note">備註:</label>
+                    <input type="text" id="meal-note" placeholder="備註">
+                </div>
+                <button class="btn" onclick="addMeal()">新增或更新紀錄</button>
+            </div>
+    
+            <div class="card">
+                <h2>飲食紀錄清單</h2>
+                <div id="meal-list"></div>
+            </div>
+    
+            <div class="card">
+                <h2>飲食紀錄圖表</h2>
+                <div class="chart-controls">
+                    <button id="daily" class="active" onclick="updateChart('daily')">日</button>
+                    <button id="weekly" onclick="updateChart('weekly')">週</button>
+                    <button id="monthly" onclick="updateChart('monthly')">月</button>
+                </div>
+                <canvas id="mealChart"></canvas>
+            </div>
+    </div>
 
     <script>
-        function generatePlan() {
-            const weight = parseFloat(document.getElementById("weight").value);
-            const goal = document.getElementById("goal").value;
-            const gender = document.getElementById("gender").value;
+        const mealData = []; // 儲存飲食紀錄
+        const ctx = document.getElementById('mealChart').getContext('2d');
+        let chartType = 'daily';
 
-            if (isNaN(weight) || weight <= 0) {
-                alert("請輸入合理體重");
+        const mealChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '熱量攝取 (大卡)',
+                    data: [],
+                    backgroundColor: '#007bff',
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        function logout() {
+            alert("已登出！");
+            window.location.href = "auth.html";
+        }
+
+        function saveProfile() {
+            const name = document.getElementById("name").value;
+            const height = document.getElementById("height").value;
+            const weight = document.getElementById("weight").value;
+            const goal = document.getElementById("goal").value;
+
+            alert(`資訊已更新！\n姓名: ${name}\n身高: ${height}cm\n體重: ${weight}kg\n目標: ${goal}`);
+        }
+
+        function generateMealPlan() {
+            const goal = document.getElementById("goal").value;
+            const mealPlan = document.getElementById("meal-plan");
+
+            const plans = {
+                "增肌": [
+                    "早餐：雞蛋 3 顆 + 燕麥 50g",
+                    "午餐：雞胸肉 200g + 糙米飯 150g + 蔬菜 100g",
+                    "晚餐：魚肉 150g + 地瓜 200g + 沙拉 1 份",
+                    "點心：優格 1 份 + 堅果 30g",
+                ],
+                "減脂": [
+                    "早餐：水煮蛋 2 顆 + 蔬菜沙拉 1 份",
+                    "午餐：雞胸肉 150g + 蔬菜湯",
+                    "晚餐：煎魚排 100g + 花椰菜 150g",
+                    "點心：低脂優格 1 份 + 水果 1 個",
+                ],
+                "維持": [
+                    "早餐：全麥吐司 2 片 + 水煮蛋 2 顆",
+                    "午餐：牛排 150g + 蔬菜 100g",
+                    "晚餐：雞胸肉 150g + 糙米飯 100g + 蔬菜 100g",
+                    "點心：堅果 20g + 水果 1 個",
+                ],
+            };//需要資料庫
+
+            mealPlan.innerHTML = plans[goal].map(meal => `<li>${meal}</li>`).join('');
+        }
+
+        function addMeal() {
+            const date = document.getElementById("meal-date").value;
+            const calories = parseInt(document.getElementById("meal-calories").value, 10);
+            const note=document.getElementById("meal-note").value;
+
+            if (!date || isNaN(calories)) {
+                alert("請填寫有效的日期和熱量！");
                 return;
             }
 
-            // 計算蛋白質攝入
-            let proteinMin, proteinMax;
-            if (goal === "muscle") {
-                proteinMin = 1.2 * weight;
-                proteinMax = 2.0 * weight;
-            } else if (goal === "fatloss") {
-                proteinMin = 1.6 * weight;
-                proteinMax = 2.0 * weight;
+            const existingIndex = mealData.findIndex(record => record.date === date);
+            if (existingIndex >= 0) {
+                mealData[existingIndex].calories = calories;
+                alert(`更新成功：${date} 攝取了 ${calories} 大卡 備註: ${note}`);
+            } else {
+                mealData.push({ date, calories,note });
+                alert(`新增成功：${date} 攝取了 ${calories} 大卡 備註: ${note}`);
             }
 
-            // 計算碳水
-            const carbMin = weight * 3;
-            const carbMax = weight * 5;
+            // 清空表單
+            document.getElementById("meal-date").value = '';
+            document.getElementById("meal-calories").value = '';
+            document.getElementById("meal-note").value='';
 
-            // 生成菜單(未完成)
-            const meals = {
-                breakfast: `蛋白質: 1份優格或豆腐, 碳水: 地瓜(approx. 41g 碳水)`,
-                lunch: `蛋白質: 雞胸、魚肉, 碳水: 白飯 (approx. 60g 碳水)`,
-                dinner: `蛋白質: 豆腐、牛奶, 碳水: 白飯或地瓜`
+            updateMealList();
+            updateChart(chartType);
+        }
+
+        function updateMealList() {
+            const mealList = document.getElementById("meal-list");
+            mealList.innerHTML = '';
+
+            mealData.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach((record, index) => {
+                const recordItem = document.createElement("div");
+                recordItem.classList.add("record-item");
+                recordItem.innerHTML = `
+                    <span>${record.date} 攝取了 ${record.calories}  大卡 備註: ${record.note}</span>
+                    <button onclick="editMeal(${index})">編輯</button>
+                    <button onclick="deleteMeal(${index})">刪除</button>
+                `;
+                mealList.appendChild(recordItem);
+            });
+        }
+
+        function editMeal(index) {
+            const record = mealData[index];
+            document.getElementById("meal-date").value = record.date;
+            document.getElementById("meal-calories").value = record.calories;
+            document.getElementById("meal-note").value=record.note;
+        }
+
+        function deleteMeal(index) {
+            mealData.splice(index, 1);
+            alert("紀錄已刪除！");
+            updateMealList();
+            updateChart(chartType);
+        }
+
+        function updateChart(type) {
+            chartType = type;
+
+            document.querySelectorAll('.chart-controls button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(type).classList.add('active');
+
+            const groupedData = groupData(mealData, type);
+            mealChart.data.labels = groupedData.labels;
+            mealChart.data.datasets[0].data = groupedData.data;
+            mealChart.update();
+        }
+
+        function groupData(data, type) {
+            const grouped = {};
+            const labels = [];
+            const resultData = [];
+
+            const options = {
+                daily: { formatter: date => date },
+                weekly: { formatter: date => `第${getWeekNumber(new Date(date))}週` },
+                monthly: { formatter: date => date.substring(0, 7) }
             };
 
-            // Display the result
-            document.getElementById("result").innerHTML = `
-                <h2>推薦菜單</h2>
-                <p><strong>蛋白質攝取:</strong> ${proteinMin.toFixed(1)} - ${proteinMax.toFixed(1)} 克/日</p>
-                <p><strong>碳水攝取:</strong> ${carbMin.toFixed(1)} - ${carbMax.toFixed(1)} 克/日</p>
-                <h3>參考菜單:</h3>
-                <p><strong>早餐:</strong> ${meals.breakfast}</p>
-                <p><strong>午餐:</strong> ${meals.lunch}</p>
-                <p><strong>晚餐:</strong> ${meals.dinner}</p>
-            `;
+            data.forEach(entry => {
+                const key = options[type].formatter(entry.date);
+                grouped[key] = (grouped[key] || 0) + entry.calories;
+            });
+
+            Object.keys(grouped).sort().forEach(key => {
+                labels.push(key);
+                resultData.push(grouped[key]);
+            });
+
+            return { labels, data: resultData };
         }
+
+        function getWeekNumber(date) {
+            const firstDay = new Date(date.getFullYear(), 0, 1);
+            const dayOfYear = ((date - firstDay + 86400000) / 86400000);
+            return Math.ceil(dayOfYear / 7);
+        }
+
+        document.addEventListener('DOMContentLoaded', updateMealList);
     </script>
 </body>
 </html>
