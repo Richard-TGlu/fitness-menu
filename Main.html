@@ -6,45 +6,49 @@
     <title>健身平台 - 飲食菜單建議</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 原始樣式保持不變 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
+            background-color: #FEFAE0;
         }
-
+    
         .nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            background-color: #333;
+            padding: 30px;
+            background-color: #CCD5AE;
             color: white;
         }
-
+        h1{
+            font-size: 35px;
+            color: #ff7b00;
+        }
+    
         .nav a {
             color: white;
             text-decoration: none;
             margin: 0 10px;
         }
-
+    
         .nav a:hover {
             text-decoration: underline;
         }
-
+    
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: auto;
             padding: 20px;
         }
-
+    
         .tabs {
             display: flex;
             justify-content: space-around;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-
+    
         .tabs button {
             flex: 1;
             padding: 10px;
@@ -53,21 +57,22 @@
             border: none;
             border-bottom: 2px solid transparent;
             font-size: 16px;
+            margin: 5px;
         }
-
+    
         .tabs button.active {
             background-color: white;
             border-bottom: 2px solid #333;
         }
-
+    
         .content {
             display: none;
         }
-
+    
         .content.active {
             display: block;
         }
-
+    
         .card {
             background-color: #fff;
             padding: 20px;
@@ -75,20 +80,25 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-
+    
         canvas {
             max-width: 100%;
         }
 
+        #calendar {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+    
         .form-group {
             margin-bottom: 15px;
         }
-
+    
         .form-group label {
             display: block;
             font-weight: bold;
         }
-
+    
         .form-group input, .form-group select {
             width: 100%;
             padding: 8px;
@@ -96,49 +106,106 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
+    
         .btn {
             display: inline-block;
             padding: 10px 20px;
             color: white;
-            background-color: #007bff;
+            background-color:green;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-
+    
         .btn:hover {
-            background-color: #0056b3;
+            background-color: darkgreen;
         }
-
-        ul {
-            padding-left: 20px;
+    
+        .history-list {
+            margin-top: 20px;
         }
-
-        .chart-controls {
+    
+        .history-item {
             display: flex;
-            justify-content: center;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
             margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
         }
-
-        .chart-controls button {
+    
+        .history-item button {
             padding: 5px 10px;
-            background-color: #007bff;
+            background-color: #dc3545;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-
-        .chart-controls button.active {
-            background-color: #0056b3;
+    
+        .history-item button:hover {
+            background-color: #c82333;
         }
-
-        .chart-controls button:hover {
-            background-color: #003f7f;
+    
+        /* -- 響應式設計 -- */
+    
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+    
+            .tabs button {
+                font-size: 14px;
+                padding: 8px;
+            }
+    
+            .container {
+                padding: 10px;
+            }
+    
+            .form-group input, .form-group select {
+                font-size: 14px;
+            }
+    
+            .card {
+                padding: 15px;
+            }
+    
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            .history-item button {
+                margin-top: 10px;
+            }
         }
-    </style>
+    
+        @media (max-width: 480px) {
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            .nav h1 {
+                font-size: 18px;
+            }
+    
+            .tabs button {
+                font-size: 12px;
+                padding: 6px;
+            }
+    
+            .form-group input, .form-group select {
+                font-size: 12px;
+            }
+    
+            .card {
+                padding: 12px;
+            }
+        }
+    </style>    
 </head>
 <body>
     <div class="nav">
@@ -246,7 +313,7 @@
                 datasets: [{
                     label: '熱量攝取 (大卡)',
                     data: [],
-                    backgroundColor: '#007bff',
+                    backgroundColor: 'green',
                 }]
             },
             options: {
