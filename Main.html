@@ -248,6 +248,14 @@
                             <option value="維持">維持</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="work">健身目標:</label>
+                        <select id="work" name="work" required>
+                            <option value="littlework">輕度工作</option>
+                            <option value="mediumwork">中度工作</option>
+                            <option value="hardwork">重度工作</option>
+                        </select>
+                    </div>
                     <button type="button" class="btn" onclick="saveProfile()">儲存資訊</button>
                 </form>
             </div>
@@ -343,8 +351,9 @@
             const height = document.getElementById("height").value;
             const weight = document.getElementById("weight").value;
             const goal = document.getElementById("goal").value;
+            const work=document.getElementById("work").value
 
-            alert(`資訊已更新！\n姓名: ${name}\n身高: ${height}cm\n體重: ${weight}kg\n目標: ${goal}`);
+            alert(`資訊已更新！\n姓名: ${name}\n身高: ${height}cm\n體重: ${weight}kg\n目標: ${goal} \n日常工作量: ${work}`);
         }
 
         function generateMealPlan() {
